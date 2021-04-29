@@ -31,20 +31,24 @@ func main() {
 	defer filePasswords.Close()
 
 	scannerUsernames := bufio.NewScanner(fileUsernames)
-	scannerPasswords := bufio.NewScanner(filePasswords)
 	for scannerUsernames.Scan() {
+		user := scannerUsernames.Text()
+		_, err := filePasswords.Seek(0, 0)
+		if err != nil {
+			log.Fatal(err)
+		}
+		scannerPasswords := bufio.NewScanner(filePasswords)
 		for scannerPasswords.Scan() {
-			user := scannerUsernames.Text()
 			pass := scannerPasswords.Text()
 			x := fmt.Sprintf("%s:%s", user, pass)
 			fmt.Println(base64.StdEncoding.EncodeToString([]byte(x)))
 		}
+		if err := scannerPasswords.Err(); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	if err := scannerUsernames.Err(); err != nil {
-		log.Fatal(err)
-	}
-	if err := scannerPasswords.Err(); err != nil {
 		log.Fatal(err)
 	}
 }
